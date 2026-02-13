@@ -1,59 +1,65 @@
-import streamlit as st
+from flask import Flask, request, render_template_string
 import threading
 import yagmail
-from mashup import create_mashup
+import os
+import mashup   # importing your original file
 
+app = Flask(__name__)
 
-EMAIL_USER = st.secrets["EMAIL_USER"]
-EMAIL_PASS = st.secrets["EMAIL_PASS"]
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASS = os.getenv("EMAIL_PASS")
 
-st.title("🎵 Mashup Generator")
+HTML = """
+<h2>YouTube Mashup Generator</h2>
+<form method="POST">
+Artist Name:<br>
+<input type="text" name="artist" required><br><br>
 
-artist = st.text_input("Artist Name")
-num_songs = st.number_input("Number of Songs (>10)", min_value=11)
-duration = st.number_input("Duration (>20 sec)", min_value=21)
-email = st.text_input("Email ID")
+Number of Songs (>10):<br>
+<input type="number" name="num_songs" min="11" required><br><br>
 
-# session states
-if "status" not in st.session_state:
-    st.session_state.status = "Idle"
+Duration (>20 sec):<br>
+<input type="number" name="duration" min="21" required><br><br>
 
-if "progress" not in st.session_state:
-    st.session_state.progress = 0
+Email:<br>
+<input type="email" name="email" required><br><br>
 
+<button type="submit">Generate Mashup</button>
+</form>
+"""
 
-def run_process():
-    st.session_state.status = "Downloading and processing songs..."
-    st.session_state.progress = 20
+def background_task(artist, num_songs, duration, email):
 
-    file = create_mashup(artist, num_songs, duration)
+    output_file = "102303655-output.mp3"
 
-    st.session_state.status = "Sending Email..."
-    st.session_state.progress = 80
+    mashup.create_mashup(artist, int(num_songs), int(duration), output_file)
 
     yag = yagmail.SMTP(EMAIL_USER, EMAIL_PASS)
     yag.send(
         to=email,
-        subject="Your Mashup 🎶",
-        contents="Here is your mashup",
-        attachments=file
+        subject="Your Mashup 🎵",
+        contents="Here is your mashup file.",
+        attachments=output_file
     )
 
-    st.session_state.status = "Completed ✅"
-    st.session_state.progress = 100
+@app.route("/", methods=["GET", "POST"])
+def home():
 
+    if request.method == "POST":
+        artist = request.form["artist"]
+        num_songs = request.form["num_songs"]
+        duration = request.form["duration"]
+        email = request.form["email"]
 
-if st.button("Generate Mashup"):
-
-    if artist and email:
-
-        thread = threading.Thread(target=run_process)
+        thread = threading.Thread(
+            target=background_task,
+            args=(artist, num_songs, duration, email)
+        )
         thread.start()
 
-    else:
-        st.error("Please fill all fields.")
+        return "Mashup started! You will receive email soon."
 
+    return render_template_string(HTML)
 
-# -------- UI DISPLAY --------
-st.write(st.session_state.status)
-st.progress(st.session_state.progress)
+if __name__ == "__main__":
+    app.run()

@@ -1,5 +1,6 @@
-streamlit
+Flask
 yt-dlp
 moviepy
 yagmail
 imageio-ffmpeg
+gunicorn
