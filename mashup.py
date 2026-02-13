@@ -2,16 +2,6 @@ import sys
 import os
 from yt_dlp import YoutubeDL
 from moviepy.editor import AudioFileClip, concatenate_audioclips
-import moviepy.config as mp_config
-
-
-# -------------------------------------------------
-# Configure Local FFmpeg
-# -------------------------------------------------
-ffmpeg_path = os.path.join(os.getcwd(), "ffmpeg", "bin")
-mp_config.change_settings({
-    "FFMPEG_BINARY": os.path.join(ffmpeg_path, "ffmpeg.exe")
-})
 
 
 # -------------------------------------------------
@@ -29,7 +19,8 @@ def create_mashup(singer_name, num_videos, duration, output_filename):
         'noplaylist': True,
         'outtmpl': f'{temp_dir}/%(title)s.%(ext)s',
         'restrictfilenames': False,
-        'ffmpeg_location': ffmpeg_path,
+
+        # No ffmpeg_location -> uses system ffmpeg automatically
 
         'js_runtimes': {'node': {}},
         'remote_components': ['ejs:github'],
@@ -41,7 +32,6 @@ def create_mashup(singer_name, num_videos, duration, output_filename):
             'preferredquality': '192',
         }],
     }
-
 
     try:
         # ---------------- Download Audio ----------------
@@ -58,10 +48,7 @@ def create_mashup(singer_name, num_videos, duration, output_filename):
             path = os.path.join(temp_dir, file)
 
             clip = AudioFileClip(path)
-
-            # Prevent crash if audio shorter than duration
             clip = clip.subclip(0, min(duration, clip.duration))
-
             audio_clips.append(clip)
 
         if not audio_clips:
@@ -73,7 +60,6 @@ def create_mashup(singer_name, num_videos, duration, output_filename):
         final_audio = concatenate_audioclips(audio_clips)
         final_audio.write_audiofile(output_filename)
 
-        # Close clips
         final_audio.close()
         for clip in audio_clips:
             clip.close()
@@ -85,7 +71,6 @@ def create_mashup(singer_name, num_videos, duration, output_filename):
             print("✔ Required number of videos downloaded.")
         else:
             print(f"❌ Error occurred: {e}")
-
 
     finally:
         # ---------------- Cleanup ----------------
