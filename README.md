@@ -1,16 +1,16 @@
-# 🎵 YouTube Mashup Generator
+# YouTube Mashup Generator
 
-A web-based application that automatically creates a mashup of songs from a specified artist by downloading audio from YouTube, trimming each track to a fixed duration, merging them into a single MP3 file, and delivering the final mashup to the user via email.
-
----
-
-## 🌐 Live Website
-
-👉 https://mashup-esco.onrender.com/
+* Web-based application that automatically creates a mashup of songs from a specified artist by downloading audio from YouTube, trimming each track to a fixed duration, merging them into a single MP3 file, and delivering the final mashup to the user via email.
 
 ---
 
-## 📌 Project Overview
+## Live Website
+
+Click Here: https://mashup-esco.onrender.com/
+
+---
+
+## Project Overview
 
 This project allows users to:
 
@@ -30,7 +30,7 @@ The system then:
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **Python**
 - **Flask** (Web framework)
@@ -43,7 +43,7 @@ The system then:
 
 ---
 
-## 🚀 How the Application Works
+## Working
 
 ### Step 1 – User Input
 User provides:
