@@ -2,3 +2,4 @@ streamlit
 yt-dlp
 moviepy
 yagmail
+imageio-ffmpeg
