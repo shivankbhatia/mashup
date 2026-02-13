@@ -74,3 +74,5 @@ The final MP3 file is emailed to the provided address.
   -  The service might not work as it should sometimes due to this issue.
   -  The hereby attached `102303655-output.mp3` is the sample output the code generated on the input:
      `python  102303655.py "Michael  Jackson" 15 30 102303655-output.mp`
+  -  Here are the logs from the Render Server...
+  ![Debug Error Logs](./debug_error.png)
