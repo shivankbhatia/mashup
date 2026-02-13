@@ -1,8 +1,8 @@
 from flask import Flask, request, render_template_string
 import threading
-import yagmail
 import os
-import mashup   # importing your original file
+import yagmail
+import mashup
 
 app = Flask(__name__)
 
@@ -10,57 +10,51 @@ EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 
 HTML = """
-<h2>YouTube Mashup Generator</h2>
+<h2>Mashup Generator</h2>
 <form method="POST">
-Artist Name:<br>
-<input type="text" name="artist" required><br><br>
+Artist:<br>
+<input name="artist"><br><br>
 
-Number of Songs (>10):<br>
-<input type="number" name="num_songs" min="11" required><br><br>
+Number of Songs:<br>
+<input name="num"><br><br>
 
-Duration (>20 sec):<br>
-<input type="number" name="duration" min="21" required><br><br>
+Duration:<br>
+<input name="duration"><br><br>
 
 Email:<br>
-<input type="email" name="email" required><br><br>
+<input name="email"><br><br>
 
-<button type="submit">Generate Mashup</button>
+<button type="submit">Generate</button>
 </form>
 """
 
-def background_task(artist, num_songs, duration, email):
+def background_task(artist, num, duration, email):
 
     output_file = "102303655-output.mp3"
 
-    mashup.create_mashup(artist, int(num_songs), int(duration), output_file)
+    mashup.create_mashup(artist, int(num), int(duration), output_file)
 
     yag = yagmail.SMTP(EMAIL_USER, EMAIL_PASS)
-    yag.send(
-        to=email,
-        subject="Your Mashup 🎵",
-        contents="Here is your mashup file.",
-        attachments=output_file
-    )
+    yag.send(to=email, subject="Mashup Ready", attachments=output_file)
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET","POST"])
 def home():
 
     if request.method == "POST":
         artist = request.form["artist"]
-        num_songs = request.form["num_songs"]
+        num = request.form["num"]
         duration = request.form["duration"]
         email = request.form["email"]
 
-        thread = threading.Thread(
+        threading.Thread(
             target=background_task,
-            args=(artist, num_songs, duration, email)
-        )
-        thread.start()
+            args=(artist,num,duration,email)
+        ).start()
 
-        return "Mashup started! You will receive email soon."
+        return "Mashup started. Check email."
 
     return render_template_string(HTML)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0",port=port)
+    app.run(host="0.0.0.0", port=port)

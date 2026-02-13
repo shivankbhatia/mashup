@@ -1,6 +1,6 @@
 Flask
 yt-dlp
-moviepy
+moviepy==1.0.3
 yagmail
 imageio-ffmpeg
 gunicorn
